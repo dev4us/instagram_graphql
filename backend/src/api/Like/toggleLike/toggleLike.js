@@ -4,29 +4,30 @@ import { prisma } from "../../../../generated/prisma-client";
 export default {
   Mutation: {
     toggleLike: async (_, args, { request }) => {
-      isAuthenticated();
+      isAuthenticated(request);
 
       const { postId } = args;
       const { user } = request;
+      const fileterOption = {
+        AND: [
+          {
+            user: {
+              id: user.id
+            }
+          },
+          {
+            post: {
+              id: postId
+            }
+          }
+        ]
+      };
 
       try {
-        const existLike = await prisma.$exists.like({
-          AND: [
-            {
-              user: {
-                id: user.id
-              }
-            },
-            {
-              post: {
-                id: postId
-              }
-            }
-          ]
-        });
+        const existLike = await prisma.$exists.like(fileterOption);
 
         if (existLike) {
-          // To do
+          await prisma.deleteManyLikes(fileterOption);
         } else {
           await prisma.createLike({
             user: {
@@ -41,6 +42,7 @@ export default {
             }
           });
         }
+        return true;
       } catch {
         return false;
       }
