@@ -5,7 +5,6 @@ export const USER_FRAGMENT = `
     email
     firstName
     lastName
-    bio
     posts{
       id
       caption
